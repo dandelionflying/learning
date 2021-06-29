@@ -120,3 +120,12 @@ clickhouse-client --query "CREATE DATABASE IF NOT EXISTS tutorial"
 创建数据库失败，官方示例数据库sql有问题
 
 ![](D:/zzx/codes/learning/pictures/clickhouseError.png)
+
+**解决：**
+
+官网的示例中字段名使用  **`** 包裹，实际不需要（单双引号也不需要），而且，页面复制过来的语句每行末尾包含了换行符，在clickclient中直接跑会识别出换行符导致语句被错误分段执行，导致报错，需要在其他工具中把换行符替换成空格。
+
+结果成功：
+
+![](D:/zzx/codes/learning/pictures/clickhouseCreateTable.png)
+
