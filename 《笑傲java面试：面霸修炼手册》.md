@@ -16,7 +16,7 @@ java8steam
 
 2.提供流计算
 
-![](D:/zzx/codes/learning/pictures/管道（pipeline）.png)
+![](pictures/管道（pipeline）.png)
 
 
 
@@ -37,9 +37,9 @@ java8steam
 
 3.提供并发计算
 
-![image-20210705163506054](pictures/并发计算流程.png)
+![并发计算流程.png](pictures/并发计算流程.png)
 
 4.函数式基本概念
 
-![函数式基本概念.png](D:/zzx/codes/learning/pictures/函数式基本概念.png)
+![函数式基本概念.png](pictures/函数式基本概念.png)
 
