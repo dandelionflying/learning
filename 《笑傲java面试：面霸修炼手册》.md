@@ -36,3 +36,10 @@ java8steam
 > lambda表达式：相当于一种匿名的函数
 
 3.提供并发计算
+
+![image-20210705163506054](pictures/并发计算流程.png)
+
+4.函数式基本概念
+
+![函数式基本概念.png](D:/zzx/codes/learning/pictures/函数式基本概念.png)
+
