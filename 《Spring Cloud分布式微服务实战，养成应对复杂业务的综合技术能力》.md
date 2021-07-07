@@ -151,7 +151,7 @@
 
   > 顺便尝试插入图片（相对路径）：
 
-  ![](D:/zzx/codes/learning/pictures/静态化解耦.png)
+  ![](pictures/静态化解耦.png)
 
   
 
@@ -295,25 +295,25 @@
 
   单体
 
-  ![](D:/zzx/codes/learning/pictures/架构演变1--单体.png)
+  ![](pictures/架构演变1--单体.png)
 
   
 
   垂直
 
-  ![](D:/zzx/codes/learning/pictures/架构演变2--垂直应用架构.png)
+  ![](pictures/架构演变2--垂直应用架构.png)
 
   
 
   soa
 
-  ![](D:/zzx/codes/learning/pictures/架构演变3--分布式SOA.png)
+  ![](pictures/架构演变3--分布式SOA.png)
 
   
 
   微服务
 
-  ![](D:/zzx/codes/learning/pictures/架构演变4--微服务架构.png)
+  ![](pictures/架构演变4--微服务架构.png)
 
   
 
@@ -560,7 +560,7 @@ eureka:
 
 - [x] 微服务链路问题--hystrix（熔断器）--提供容错机制，避免微服务系统雪崩
 
-  ![](D:/zzx/codes/learning/pictures/熔断器工作原理.png)
+  ![](pictures/熔断器工作原理.png)
 
   配置
 
