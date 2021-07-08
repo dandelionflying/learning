@@ -33,6 +33,7 @@ spring-boot-starter-actuator
 http://localhost:8080/actuator
 
 - 常用端点：
+
   **1）/health**
 
   Shows application health information.关于应用的健康信息
@@ -69,4 +70,72 @@ http://localhost:8080/actuator
   #激活所有端点 默认只有health(2.5版本)
   management.endpoints.web.exposure.include=*
   ```
+
+二、springboot配置管理
+
+（1）配置管理常用方式
+
+- 配置文件
+
+- 环境变量
+
+  eg:
+
+  ```properties
+  management.endpoints.web.exposure.include=${XXX}
+  ```
+
+  1）在idea 的Run/Debug Configuration中配置环境变量（Environment Variables）
+
+  2）以jar方式启动时，在jar命令后带上参数 --XXX=xxx
+
+  eg:
+
+  ```
+  java -jar xxxxxx.jar --XXX=xxx
+  ```
+
+- 外部配置文件
+
+  ```
+  java -jar xxxxxx.jar 
+  ```
+
+  jar包相同路径下的配置文件可以被直接读取，并且比jar中的配置文件优先级高
+
+- 命令行参数
+
+  1）在idea 的Run/Debug Configuration中Program 配置
+
+  2）jar方式启动
+
+  ```
+  java -jar xxxxxx.jar --server.port=8888
+  ```
+
+（2）profile
+
+​	用于不同环境使用不同的配置，可在idea的Run/Debug Active profile 中配置
+
+​	jar包形式使用方式：
+
+```yaml
+#连字符
+---
+# profile=x的专用属性，也就是某个环境下的专用属性 比如这是开发环境
+# @deprecated since 2.4.0 for removal in 2.6.0 in favor of  原方式spring.profiles已废弃 2.5.x版本不支持
+profiles: dev
+
+---
+# profile=y的专用属性，也就是某个环境下的专用属性 比如这是生产环境
+profiles: prod
+# eg:
+server:
+  tomcat:
+    threads:
+      max: 400
+
+```
+
+> 配置文件为properties时，不同环境的配置写在不同的文件里，文件格式为 application-xxx.properties
 
