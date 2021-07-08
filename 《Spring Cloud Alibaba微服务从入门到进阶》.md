@@ -162,3 +162,19 @@ server:
 ​	持续进化：即，单个微服务进行优化是否可控，粒度太粗优化相对困难
 
 （3）微服务拆分是动态的，随着开发的进行，适当地拆分、合并
+
+四、springboot RestTemplate
+
+（1）一个轻量级的http客户端，用于微服务之间的请求调用。
+
+（2）基本使用
+
+```java
+// 二者区别：getForEntity可以拿到http响应体的内容，而getForObject只是拿到响应体数据
+ResponseEntity<String> forEntity = restTemplate.getForEntity("http:host:port/api/{param1}", String.class);
+restTemplate.getForEntity("http:host:port/api/{param1}",String.class, 2);
+
+String forObject = restTemplate.getForObject("http:host:port/api/{param1}", String.class);
+restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
+```
+
