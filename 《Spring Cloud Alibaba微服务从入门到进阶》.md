@@ -178,3 +178,32 @@ String forObject = restTemplate.getForObject("http:host:port/api/{param1}", Stri
 restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 ```
 
+六、整合Spring Cloud Alibaba
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <!--整合springcloud-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Hoxton.SR3</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <!--整合springcloud alibaba-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <version>2.2.6.RC1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <!--整合完毕后需要使用springcloudalibaba 的子项目时，不需要指定版本-->
+    </dependencies>
+</dependencyManagement>
+```
+
+> 最好使用官网推荐的版本搭配：
+> https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
+
