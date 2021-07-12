@@ -260,3 +260,62 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 #          key1: value1
 #          key2: value2
 ```
+
+八、服务间通信
+
+（1）原始方式（低级，不使用）：
+
+​		通过DiscoveryClient获取服务名关联的实例`client.getInstances("basis2")`，拼接后使用restTemplate发送请求`restTemplate.getForObject(url,SomeClass.class)`。
+
+（2）引入负载均衡：
+
+​		声明RestTemplate Bean时，加上**@LoadBalanced**注解，就可以直接用服务名称进行服务间通信，不需要再去获取hostport等信息`restTemplate.getForObject("http://"+ ServiceList.basis2 + "/basis2/findBasis2", String.class)`。()
+
+（3）feign方式
+
+- 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+- 统一接口管理
+
+```java
+/**
+ * @author running4light
+ * @description 统一接口管理：定义某个微服务的所有接口
+ * @createTime 2021/7/12 16:45
+ */
+@FeignClient(value = "basis2")
+public interface Basis2Web {
+    @GetMapping("/basis2/findBasis2")
+    String findBasis2();
+}
+```
+
+- 调用
+
+```java
+// 自动装配接口
+@Autowired
+private Basis2Web basis2Web;
+
+// 直接调用
+@GetMapping("feignTestGet")
+public String feignTestGet(){
+    return basis2Web.findBasis2();
+}
+```
+
+- 报错处理
+
+​		<img src="pictures\feign服务调用报错1.png" style="zoom:75%;" />
+
+> ​		接口方法需写全路径 “**controller+method**”
+
+![](pictures\feign服务调用报错2.png)
+
