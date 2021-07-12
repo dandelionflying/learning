@@ -207,3 +207,36 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 > 最好使用官网推荐的版本搭配：
 > https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
 
+七、nacos
+
+（1）安装运行
+
+去官网下载nacos的server和client，版本选择可点击`<artifactId>spring-cloud-alibaba-dependencies</artifactId>`根据里面的nacos版本号选择相应的版本下载使用
+
+控制台地址 http://192.168.217.1:8848/nacos/index.html
+
+（2）服务注册
+
+引入依赖：
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <!--            <groupId>org.springframework.cloud</groupId>-->
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+    <version>2.2.5.RELEASE</version>
+</dependency>
+```
+
+**一定保证该版本是与你当前项目的springboot版本自己springCloud版本是兼容的，按照官方推荐版本搭配。**
+
+配置server地址
+
+```yaml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+```
+
+> 引入com.alibaba.cloud包的依赖，不需要使用@EnableDiscoveryClient
