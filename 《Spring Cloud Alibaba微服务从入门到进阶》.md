@@ -240,3 +240,23 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 ```
 
 > 引入com.alibaba.cloud包的依赖，不需要使用@EnableDiscoveryClient
+
+（3）元数据
+
+提供描述信息
+
+灵活控制微服务调用 如微服务版本控制
+
+<img src="pictures\元数据.png" style="zoom:75%;" />
+
+```yaml
+  cloud:
+    nacos:
+      discovery:
+        #        cluster-name:
+        #        namespace:
+        #元数据配置
+#        metadata:
+#          key1: value1
+#          key2: value2
+```
