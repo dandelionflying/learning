@@ -449,3 +449,9 @@ public class RibbonConfiguration {
 ​	官方文档给出了警告：
 
 > The `CustomConfiguration` clas must be a `@Configuration` class, but take care that it is not in a `@ComponentScan` for the main application context. Otherwise, it is shared by all the `@RibbonClients`. If you use `@ComponentScan` (or `@SpringBootApplication`), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the `@ComponentScan`).
+
+- 全局配置：
+
+```java
+@RibbonClients(defaultConfiguration = XXX.class)
+```
