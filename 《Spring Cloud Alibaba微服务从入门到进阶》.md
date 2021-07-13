@@ -14,7 +14,7 @@ https://docs.spring.io/spring-boot/docs/2.5.x/reference/htmlsingle/#using.build-
 
 
 
-一、springboot Actuator
+# 一、springboot Actuator
 
 应用监控
 
@@ -71,7 +71,7 @@ http://localhost:8080/actuator
   management.endpoints.web.exposure.include=*
   ```
 
-二、springboot配置管理
+# 二、springboot配置管理
 
 （1）配置管理常用方式
 
@@ -139,7 +139,7 @@ server:
 
 > 配置文件为properties时，不同环境的配置写在不同的文件里，文件格式为 application-xxx.properties
 
-三、微服务拆分
+# 三、微服务拆分
 
 （1）方法论:
 
@@ -163,7 +163,7 @@ server:
 
 （3）微服务拆分是动态的，随着开发的进行，适当地拆分、合并
 
-四、springboot RestTemplate
+# 四、springboot RestTemplate
 
 （1）一个轻量级的http客户端，用于微服务之间的请求调用。
 
@@ -178,7 +178,7 @@ String forObject = restTemplate.getForObject("http:host:port/api/{param1}", Stri
 restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 ```
 
-六、整合Spring Cloud Alibaba
+# 六、整合Spring Cloud Alibaba
 
 ```xml
 <dependencyManagement>
@@ -207,7 +207,7 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 > 最好使用官网推荐的版本搭配：
 > https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
 
-七、nacos
+# 七、nacos
 
 （1）安装运行
 
@@ -261,7 +261,7 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 #          key2: value2
 ```
 
-八、服务间通信
+# 八、服务间通信
 
 （1）原始方式（低级，不使用）：
 
@@ -318,4 +318,80 @@ public String feignTestGet(){
 > ​		接口方法需写全路径 “**controller+method**”
 
 ![](pictures\feign服务调用报错2.png)
+
+# 九、ribbon--基于客户端的负载均衡
+
+> doc：
+>
+> 英文：https://cloud.spring.io/spring-cloud-netflix/multi/multi_spring-cloud-ribbon.html
+>
+> 中文：https://www.springcloud.cc/spring-cloud-greenwich.html#spring-cloud-ribbon
+
+**（1）springCloudNetfix为ribbon提供的beans：**
+
+<img src="pictures\RibbonBeans.png" style="zoom:75%;" />
+
+IclientConfig：读取配置
+
+IRule：负载均衡规则
+
+IPing：筛选实例
+
+ServerList<Server>：服务实例列表
+
+ServerListFilter<Server>：服务实例过滤器
+
+ILoadBalancer：Ribbon 的入口
+
+ServerListUpdater：更新策略
+
+**（2）IRule**
+
+![](pictures\Ribbon-IRule继承关系图.png)
+
+- RoundRobinRule：继承AbstractLoadBalancerRule
+
+  > The most well known and basic load balancing strategy, i.e. Round Robin Rule.
+  >
+  > 最著名和基本的负载平衡策略，即轮循规则。
+
+  RoundRobinRule的choose方法：轮询找到可用的server返回。
+
+- WeightedResponseTimeRule：继承自RoundRobinRule
+
+- ClientConfigEnabledRoundRobinRule：继承AbstractLoadBalancerRule，本质上是在使用roundRobinRule。
+
+- PredicateBasedRule：继承自ClientConfigEnabledRoundRobinRule，重写了choose方法，将server过滤逻辑交给AbstractServerPredicate，过滤后，以循环方式选择server返回。
+
+server的选择逻辑：
+
+```java
+/**
+ * Referenced from RoundRobinRule
+ * Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.
+ *
+ * @param modulo The modulo to bound the value of the counter.
+ * @return The next value.
+ */
+private int incrementAndGetModulo(int modulo) {
+    for (;;) {
+        int current = nextIndex.get();
+        int next = (current + 1) % modulo;
+        if (nextIndex.compareAndSet(current, next) && current < modulo)
+            return current;
+    }
+}
+```
+
+AvailabilityFilteringRule：继承自PredicateBasedRule，
+
+ZoneAvoidanceRule：继承自PredicateBasedRule
+
+BestAvailableRule：继承自ClientConfigEnabledRoundRobinRule
+
+RandomRule：继承AbstractLoadBalancerRule
+
+RetryRule：继承AbstractLoadBalancerRule
+
+
 
