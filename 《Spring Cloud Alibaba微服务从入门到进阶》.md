@@ -428,13 +428,17 @@ public class RibbonConfiguration {
   basis2:
     ribbon:
       NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+      NFLoadBalancerClassName: ILoadBalancer实现类
+      NFLoadBalancerPingClassName: IPing实现类
+      NIWSServerListClassName: ServerList实现类
+      NIWSServerListFilterClassName: ServerListFilter实现类
   ```
 
   格式：
 
-  服务名.ribbon.NFLoadBalancerRuleClassName=包路径+你的规则类
+  服务名.ribbon.XXClassName=包路径+你的规则类
 
-  
+  其中XX可为 `NFLoadBalancer` `NFLoadBalancerRule` `NFLoadBalancerPing`  `NIWSServerList` `NIWSServerListFilter`
 
 - 使用：RestTemplate+@LoadBalanced
 
