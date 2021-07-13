@@ -422,6 +422,20 @@ public class RibbonConfiguration {
 }
 ```
 
+- yml配置属性的方式（**优先级高于java配置类**）
+
+  ```yml
+  basis2:
+    ribbon:
+      NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+  ```
+
+  格式：
+
+  服务名.ribbon.NFLoadBalancerRuleClassName=包路径+你的规则类
+
+  
+
 - 使用：RestTemplate+@LoadBalanced
 
   link:    http://localhost:8001/basisTest/serviceGet
@@ -435,4 +449,3 @@ public class RibbonConfiguration {
 ​	官方文档给出了警告：
 
 > The `CustomConfiguration` clas must be a `@Configuration` class, but take care that it is not in a `@ComponentScan` for the main application context. Otherwise, it is shared by all the `@RibbonClients`. If you use `@ComponentScan` (or `@SpringBootApplication`), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the `@ComponentScan`).
-
