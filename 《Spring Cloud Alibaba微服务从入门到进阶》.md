@@ -393,5 +393,46 @@ RandomRule：继承AbstractLoadBalancerRule
 
 RetryRule：继承AbstractLoadBalancerRule
 
+**（3）自定义配置**
 
+- java配置类
+
+```java
+/**
+ * @author running4light
+ * @description 指定ribbonClient配置类
+ * @createTime 2021/7/13 14:18
+ */
+@Configuration
+@RibbonClient(name = "basis2", configuration = RibbonConfiguration.class)
+public class Basis2RibbonConfiguration {
+
+}
+/**
+ * @author running4light
+ * @description 自定义配置
+ * @createTime 2021/7/13 14:20
+ */
+@Configuration
+public class RibbonConfiguration {
+    @Bean
+    public IRule ribbonRule(){
+        return new RandomRule();
+    }
+}
+```
+
+- 使用：RestTemplate+@LoadBalanced
+
+  link:    http://localhost:8001/basisTest/serviceGet
+
+- 一个父子上下文的问题：该配置类所处包路径，不能被@SpringbootApplication注解或@ComponentScan注解所扫描的路径所包含。
+
+![](pictures\RibbonConfiguration.png)
+
+​	会导致所有的RibbonCLients都使用该规则。
+
+​	官方文档给出了警告：
+
+> The `CustomConfiguration` clas must be a `@Configuration` class, but take care that it is not in a `@ComponentScan` for the main application context. Otherwise, it is shared by all the `@RibbonClients`. If you use `@ComponentScan` (or `@SpringBootApplication`), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the `@ComponentScan`).
 
