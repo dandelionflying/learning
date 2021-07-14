@@ -487,13 +487,69 @@ public class RibbonConfiguration {
 
 
 
-# 十、声明式Http客户端
+# 十、声明式Http客户端--Feign
 
 
 
-见 服务间通信--feign方式
+基础使用方式见 服务间通信--feign方式
+
+## （1）Feign日志级别配置
+
+> NONE（default）：不记录
+>
+> BASIC：请求方法、URL响应状态码及执行时间
+>
+> HEADERS：BASIC+RequestHeader+ResponseHeader
+>
+> FULL：请求、响应 的 header、body、元数据
+
+- java方式
+
+```java
+@FeignClient(value = "basis2", configuration = Basis2FeignConfiguration.class)
+public interface Basis2Web {
+    @GetMapping("/basis2/findBasis2")
+    String findBasis2();
+}
+```
+
+```java
+public class Basis2FeignConfiguration {
+    @Bean
+    public Logger.Level level(){
+        return Logger.Level.FULL;
+    }
+}
+```
 
 
 
+```yaml
+logging:
+  level:
+#    feign日志级别建立在feign的接口的日志级别是在debug只上的,如果是info级别 feign日志级别设置不会生效
+    cn.running4light.basis.web.feigns.Basis2Web: debug
+#    cn.running4light.basis.web.feigns.Basis2Web: info
+```
 
+- yaml方式
+
+**失效，暂未解决**
+
+
+
+```yaml
+feign:
+  client:
+    config:
+      basis2:
+        loggerLever: full
+```
+
+## （2）Feign可配置项
+
+在Feign.class中可以查找：
+
+
+<img src="pictures\Feign可配置项.png">
 
