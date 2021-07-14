@@ -347,7 +347,9 @@ ServerListUpdater：更新策略
 
 **（2）IRule**
 
-![](pictures\Ribbon-IRule继承关系图.png)
+
+
+<img src="pictures\Ribbon-IRule继承关系图.png" style="zoom:75%;" />
 
 - RoundRobinRule：继承AbstractLoadBalancerRule
 
@@ -459,3 +461,23 @@ public class RibbonConfiguration {
 ```java
 @RibbonClients(defaultConfiguration = XXX.class)
 ```
+
+- 饥饿加载--防止第一次请求过慢
+
+  ```yaml
+  ribbon:
+    eager-load:
+      enabled: true
+      clients: basis2
+  ```
+
+**（4）Ribbon拓展**
+
+
+
+# 十、声明式Http客户端
+
+
+
+
+
