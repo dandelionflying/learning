@@ -1,5 +1,11 @@
 **《面向未来微服务Spring Cloud Alibaba微服务从入门到进阶》**
 
+
+
+[TOC]
+
+
+
 doc:
 
 https://docs.spring.io/spring-boot/docs/2.5.x/reference/htmlsingle/
@@ -20,7 +26,7 @@ https://docs.spring.io/spring-boot/docs/2.5.x/reference/htmlsingle/#using.build-
 
 > Spring Boot includes a number of additional features to help you monitor and manage your application when you push it to production. You can choose to manage and monitor your application by using HTTP endpoints or with JMX. Auditing, health, and metrics gathering can also be automatically applied to your application.
 
-（1）基本使用：
+## （1）基本使用：
 
 - 依赖：
 
@@ -58,7 +64,7 @@ http://localhost:8080/actuator
 
 ​					unknown
 
-​		**2）/info**
+## 		**2）/info**
 
 ​		描述应用：以键值对形式配置
 
@@ -75,7 +81,7 @@ http://localhost:8080/actuator
 
 # 二、springboot配置管理
 
-（1）配置管理常用方式
+## （1）配置管理常用方式
 
 - 配置文件
 
@@ -115,7 +121,7 @@ http://localhost:8080/actuator
   java -jar xxxxxx.jar --server.port=8888
   ```
 
-（2）profile
+## （2）profile
 
 ​	用于不同环境使用不同的配置，可在idea的Run/Debug Active profile 中配置
 
@@ -211,13 +217,13 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 
 # 七、nacos
 
-（1）安装运行
+## （1）安装运行
 
 去官网下载nacos的server和client，版本选择可点击`<artifactId>spring-cloud-alibaba-dependencies</artifactId>`根据里面的nacos版本号选择相应的版本下载使用
 
 控制台地址 http://192.168.217.1:8848/nacos/index.html
 
-（2）服务注册
+## （2）服务注册
 
 引入依赖：
 
@@ -243,7 +249,7 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 
 > 引入com.alibaba.cloud包的依赖，不需要使用@EnableDiscoveryClient
 
-（3）元数据
+## （3）元数据
 
 提供描述信息
 
@@ -265,15 +271,15 @@ restTemplate.getForObject("http:host:port/api/{param1}",String.class, 2);
 
 # 八、服务间通信
 
-（1）原始方式（低级，不使用）：
+## （1）原始方式（低级，不使用）：
 
 ​		通过DiscoveryClient获取服务名关联的实例`client.getInstances("basis2")`，拼接后使用restTemplate发送请求`restTemplate.getForObject(url,SomeClass.class)`。
 
-（2）引入负载均衡：
+## （2）引入负载均衡：
 
 ​		声明RestTemplate Bean时，加上**@LoadBalanced**注解，就可以直接用服务名称进行服务间通信，不需要再去获取hostport等信息`restTemplate.getForObject("http://"+ ServiceList.basis2 + "/basis2/findBasis2", String.class)`。()
 
-（3）feign方式
+## （3）feign方式
 
 - 依赖
 
@@ -331,7 +337,7 @@ public String feignTestGet(){
 >
 > 中文：https://www.springcloud.cc/spring-cloud-greenwich.html#spring-cloud-ribbon
 
-**（1）springCloudNetfix为ribbon提供的beans：**
+## **（1）springCloudNetfix为ribbon提供的beans：**
 
 <img src="pictures\RibbonBeans.png" style="zoom:75%;" />
 
@@ -349,7 +355,7 @@ ILoadBalancer：Ribbon 的入口
 
 ServerListUpdater：更新策略
 
-**（2）IRule**
+## **（2）IRule**
 
 
 
@@ -399,7 +405,7 @@ RandomRule：继承AbstractLoadBalancerRule
 
 RetryRule：继承AbstractLoadBalancerRule
 
-**（3）自定义配置**
+## **（3）自定义配置**
 
 - java配置类
 
@@ -477,11 +483,15 @@ public class RibbonConfiguration {
       clients: basis2
   ```
 
-**（4）Ribbon拓展**
+## **（4）Ribbon拓展**
 
 
 
 # 十、声明式Http客户端
+
+
+
+见 服务间通信--feign方式
 
 
 
