@@ -76,7 +76,7 @@ Code: 210. DB::NetException: Connection refused
 
 实际上是上一个错误，如图：
 
-![](D:/zzx/codes/learning/pictures/clickhouse启动.png)
+<img src="pictures\clickhouse启动.png">"
 
 使用命令
 
@@ -98,7 +98,7 @@ systemctl status clickhouse-server.service
 
 启动正常
 
-![](D:/zzx/codes/learning/pictures/clickhouse启动2.png)
+<img src="pictures\clickhouse启动2.png">
 
 3.示例数据库使用
 
@@ -119,7 +119,7 @@ clickhouse-client --query "CREATE DATABASE IF NOT EXISTS tutorial"
 
 创建数据库失败，官方示例数据库sql有问题
 
-![](D:/zzx/codes/learning/pictures/clickhouseError.png)
+<img src="pictures\clickhouseError.png">
 
 **解决：**
 
@@ -127,7 +127,7 @@ clickhouse-client --query "CREATE DATABASE IF NOT EXISTS tutorial"
 
 结果成功：
 
-![](D:/zzx/codes/learning/pictures/clickhouseCreateTable.png)
+<img src="pictures\clickhouseCreateTable.png">
 
 4.导入示例数据
 

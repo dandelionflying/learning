@@ -46,7 +46,7 @@ http://localhost:8080/actuator
 
   
 
-![](pictures\actuator-health-detail.png)
+<img src="pictures\actuator-health-detail.png">
 
 ​				status取值
 
@@ -62,7 +62,9 @@ http://localhost:8080/actuator
 
 ​		描述应用：以键值对形式配置
 
-​		![](pictures\actuator-info.png)
+<img src="pictures\actuator-info.png" style="zoom:100%;" />
+
+
 
 - 端点激活
 
@@ -317,7 +319,9 @@ public String feignTestGet(){
 
 > ​		接口方法需写全路径 “**controller+method**”
 
-![](pictures\feign服务调用报错2.png)
+
+
+<img src="pictures\feign服务调用报错2.png" style="zoom:75%;" />
 
 # 九、ribbon--基于客户端的负载均衡
 
@@ -448,7 +452,9 @@ public class RibbonConfiguration {
 
 - 一个父子上下文的问题：该配置类所处包路径，不能被@SpringbootApplication注解或@ComponentScan注解所扫描的路径所包含。
 
-![](pictures\RibbonConfiguration.png)
+)
+
+<img src="pictures\RibbonConfiguration.png" style="zoom:100%;" />
 
 ​	会导致所有的RibbonCLients都使用该规则。
 
