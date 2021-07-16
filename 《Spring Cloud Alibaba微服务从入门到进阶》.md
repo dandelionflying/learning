@@ -552,7 +552,7 @@ feign:
 
 <img src="pictures\Feign可配置项.png">
 
-## **（3）feign性能优化**
+## **（3）feign性能优化**（未测试）
 
 - 连接池
 
@@ -581,3 +581,102 @@ feign:
   > **max-connections max-connections-per-route 的具体值需根据实际项目压测结果确定相对最优配置**
 
 - feign日志级别不设置为full
+
+# 十一、服务容错--Sentinel
+
+## （1）常见容错方案
+
+- 超时
+
+- 限流
+
+- 仓壁模式
+
+- 断路器模式
+
+  https://martinfowler.com/bliki/CircuitBreaker.html
+
+## （2）getstarted
+
+
+
+- 依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+- 配置：
+
+```yaml
+# 配置actuator
+management:
+  #激活所有端点 默认只有health
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+
+
+- sentinel控制台
+
+  下载（jar包版本最好跟依赖包中的版本一致）
+
+  https://github.com/alibaba/Sentinel/releases
+
+  运行
+
+  `java -jar sentinel-dashboard-1.8.2.jar`
+
+- 项目整合控制台
+
+```yaml
+spring:
+  cloud:
+    sentinel:
+      transport:
+        # 指定sentinel 控制台地址
+        dashboard: 8080
+        port: 8719
+```
+
+## （3）sentinel控制台--流控
+
+- 流控模式
+
+1. 直接
+2. 关联--对A设置关联到B，B达到阈值时，限流A
+3. 链路--只记录指定链路上的流量
+
+<img src="pictures\sentinel控制台--流控1.png" style="zoom:80%">
+
+- 流控效果
+
+1. 快速失败
+
+2. warm up
+
+   根据codeFactor（默认3），从阈值/codeFactor，经过预热时长，才达到设置的QPS阈值
+
+   > https://github.com/alibaba/Sentinel/wiki/限流---预热
+
+3. 排队等待
+
+   让请求以均匀的速度通过，阈值类型必须是QPS
+
+
+
+<img src="pictures\sentinel控制台--流控2.png" style="zoom:80%">
+
+## （4）sentinel控制台--降级(熔断)
+
