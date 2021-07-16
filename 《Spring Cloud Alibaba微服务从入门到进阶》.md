@@ -550,6 +550,34 @@ feign:
 
 在Feign.class中可以查找：
 
-
 <img src="pictures\Feign可配置项.png">
 
+## **（3）feign性能优化**
+
+- 连接池
+
+  依赖
+
+  ```xml
+  <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-httpclient</artifactId>
+  </dependency>
+  ```
+
+  配置
+
+  ```yaml
+  feign:
+    httpclient:
+      enabled: true
+      # max-connections max-connections-per-route 的具体值需根据实际项目压测结果确定相对最优配置
+      # feign 最大连接池数
+      max-connections: 200
+      # feign 单个路径的最大连接数
+      max-connections-per-route: 50
+  ```
+
+  > **max-connections max-connections-per-route 的具体值需根据实际项目压测结果确定相对最优配置**
+
+- feign日志级别不设置为full
