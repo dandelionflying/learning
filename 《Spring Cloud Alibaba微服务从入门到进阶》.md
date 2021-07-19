@@ -650,7 +650,7 @@ spring:
         port: 8719
 ```
 
-## （3）sentinel控制台--流控
+## （3）流控
 
 - 流控模式
 
@@ -678,5 +678,89 @@ spring:
 
 <img src="pictures\sentinel控制台--流控2.png" style="zoom:80%">
 
-## （4）sentinel控制台--降级(熔断)
+## （4）熔断降级
+
+> https://github.com/alibaba/Sentinel/wiki/%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7
+
+**源码位置：com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule.class**
+
+- 慢调用比例
+
+  选择以慢调用比例作为阈值，需要设置允许的慢调用 RT（即**最大的响应时间**），请求的响应时间大于该值则统计为慢调用。当**单位统计时长**（`statIntervalMs`）内请求数目大于设置的**最小请求数**目，并且慢调用的比例大于**阈值**，则接下来的**熔断时长**内请求会自动被熔断。经过熔断时长后熔断器会进入**探测恢复状态**（HALF-OPEN 状态），若接下来的一个请求响应时间小于设置的慢调用 RT 则结束熔断，若大于设置的慢调用 RT 则会再次被熔断。
+
+> 几个关键词：最大响应时间、单位统计时长、最小请求数、阈值（慢调用比例）、熔断时长
+
+eg：当3000ms内请求数大于3，且慢调用比例大于0.2，则接下来2s内请求会自动被熔断，2s后熔断器进入探测恢复状态。
+
+<img src="pictures\sentinel控制台--熔断1.png">
+
+- 异常比例
+
+  当单位统计时长（`statIntervalMs`）内请求数目大于设置的最小请求数目，并且异常的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态（HALF-OPEN 状态），若接下来的一个请求成功完成（没有错误）则结束熔断，否则会再次被熔断。异常比率的阈值范围是 `[0.0, 1.0]`，代表 0% - 100%。
+
+  eg：当2000ms内请求数大于3，且异常比例大于0.6，则接下来2s内请求会自动被熔断，2s后熔断器进入探测恢复状态。
+
+  <img src="pictures\sentinel控制台--熔断2.png">
+
+- 异常数
+
+  当单位统计时长内的异常数目超过阈值之后会自动进行熔断。经过熔断时长后熔断器会进入探测恢复状态（HALF-OPEN 状态），若接下来的一个请求成功完成（没有错误）则结束熔断，否则会再次被熔断。
+
+  eg：当3000ms内请求数大于10，且异常数大于4，则接下来2s内请求会自动被熔断，2s后熔断器进入探测恢复状态。
+
+  <img src="pictures\sentinel控制台--熔断3.png">
+
+
+
+## （5）热点参数限流
+
+> https://github.com/alibaba/Sentinel/wiki/%E7%83%AD%E7%82%B9%E5%8F%82%E6%95%B0%E9%99%90%E6%B5%81
+
+**源码位置：com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowChecker**
+
+- 引入依赖
+
+```xml
+<!--热点参数限流-->
+<dependency>
+    <groupId>com.alibaba.csp</groupId>
+    <artifactId>sentinel-parameter-flow-control</artifactId>
+</dependency>
+```
+
+- 在需要进行热点参数限流配置的接口上添加注解
+
+```java
+@GetMapping("hotTest")
+@SentinelResource("hotTest")
+public String hotTest(@RequestParam(required = false) String a, @RequestParam(required = false) String b){
+    return a + " " + b;
+}
+```
+
+<img src="pictures\sentinel控制台--热点规则1.png">
+
+
+
+
+
+## （6）授权规则--系统自适应限流
+
+> https://github.com/alibaba/Sentinel/wiki/%E7%B3%BB%E7%BB%9F%E8%87%AA%E9%80%82%E5%BA%94%E9%99%90%E6%B5%81
+
+源码位置：com.alibaba.csp.sentinel.slots.system.SystemRuleManager
+
+“Sentinel 系统自适应限流从整体维度对应用入口流量进行控制，结合应用的 Load、CPU 使用率、总体平均 RT、入口 QPS 和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能跑在最大吞吐量的同时保证系统整体的稳定性。”
+
+“Sentinel 在系统自适应保护的做法是，用 load1 作为启动自适应保护的因子，而允许通过的流量由处理请求的能力，即请求的响应时间以及当前系统正在处理的请求速率来决定。”
+
+<img src="pictures\sentinel控制台--系统规则1.png">
+
+## （7）授权规则--黑白名单控制
+
+> https://github.com/alibaba/Sentinel/wiki/%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E6%8E%A7%E5%88%B6
+
+<img src="pictures\sentinel控制台--授权规则1.png">
+
+## （8）代码方式配置规则（待整理）
 
