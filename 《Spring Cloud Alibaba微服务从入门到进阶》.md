@@ -856,3 +856,96 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
     }
 }
 ```
+
+## （12）Sentinel规则持久化--动态规则
+
+“我们推荐**通过控制台设置规则后将规则推送到统一的规则中心，客户端实现** `ReadableDataSource` **接口端监听规则中心实时获取变更**”
+
+<img src="pictures\sentinel--动态规则.png" style="zoom:75%;">
+
+- 拉模式（Pull-based:）：客户端主动向规则中心拉取规则，规则中心可以是RDBMS/文件/VCS等。
+  - 缺点：无法及时获取变更
+  - 使用：继承 `AutoRefreshDataSource`,实现 readSource()
+
+
+
+- 推模式（Push-based:）:规则中心推送，客户端监听获取
+  - 使用：继承 `AbstractDataSource`，在构造方法中添加监听器，并实现readSource()从指定数据源读取string格式的配置数据。
+
+- 注册数据源
+
+  - eg:
+
+    ```java
+    package com.test.init;
+    
+    public class DataSourceInitFunc implements InitFunc {
+    
+        @Override
+        public void init() throws Exception {
+            final String remoteAddress = "localhost";
+            final String groupId = "Sentinel:Demo";
+            final String dataId = "com.alibaba.csp.sentinel.demo.flow.rule";
+    
+            ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new NacosDataSource<>(remoteAddress, groupId, dataId,
+                source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
+            FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+        }
+    }
+    ```
+
+  - 接着将对应的类名添加到位于资源目录（通常是 `resource` 目录）下的 `META-INF/services` 目录下的 `com.alibaba.csp.sentinel.init.InitFunc` 文件中,如
+
+    ```properties
+    cn.running4light.basis.init.DataSourceInitFunc
+    ```
+
+- 示例
+
+  - 拉模式
+
+    **规则存储路径需提前建好**
+
+    https://github.com/dandelionflying/SpringCLoudAlibaba/tree/master/basis/src/main/java/cn/running4light/basis/init/FileDataSourceInitFunc.java
+
+    注册规则数据源：存在文件中
+
+    ```java
+    
+    public class FileDataSourceInitFunc implements InitFunc {
+        @Override
+        public void init() throws Exception {
+    //        String ruleDir = System.getProperty("user.home") + "/sentinel/rules";
+    //        String ruleDir = System.getProperty("user.dir") + "/sentinel/rules";
+    //        String ruleDir =ResourceUtils.getURL("classpath:").getPath() + File.pathSeparator + "sentinel"+ File.pathSeparator +"rules";
+            String ruleDir = "D:"+ File.separator + "zzx" + File.separator +"sentinelRules";
+            String flowRulePath = ruleDir + File.separator+ "flow-rule.json";
+            // 流控规则
+            ReadableDataSource<String, List<FlowRule>> flowRuleRDS = new FileRefreshableDataSource<>(
+                    flowRulePath,
+                    flowRuleListParser
+            );
+            // 将可读数据源注册至FlowRuleManager
+            // 这样当规则文件发生变化时，就会更新规则到内存
+            FlowRuleManager.register2Property(flowRuleRDS.getProperty());
+            WritableDataSource<List<FlowRule>> flowRuleWDS = new FileWritableDataSource<>(
+                    flowRulePath,
+                    this::encodeJson
+            );
+            // 将可写数据源注册至transport模块的WritableDataSourceRegistry中
+            // 这样收到控制台推送的规则时，Sentinel会先更新到内存，然后将规则写入到文件中
+            WritableDataSourceRegistry.registerFlowDataSource(flowRuleWDS);
+        }
+    
+        private Converter<String, List<FlowRule>> flowRuleListParser = source -> JSON.parseObject(
+                source,
+                new TypeReference<List<FlowRule>>() {
+                }
+        );
+        private <T> String encodeJson(T t) {
+            return JSON.toJSONString(t);
+        }
+    }
+    ```
+
+  - 
