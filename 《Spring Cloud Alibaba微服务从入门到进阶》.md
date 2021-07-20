@@ -1,5 +1,3 @@
-**《面向未来微服务Spring Cloud Alibaba微服务从入门到进阶》**
-
 
 
 [TOC]
@@ -18,7 +16,15 @@ boot官方依赖格式 <spring-boot-starter-xxx>
 
 https://docs.spring.io/spring-boot/docs/2.5.x/reference/htmlsingle/#using.build-systems.starters
 
+环境：
 
+​	springcloudalibaba--2.2.6.RC1
+
+​	springcloud--Hoxton.SR3
+
+​	sentinel-dashboard-1.8.2.jar
+
+​	nacos-server-1.3.1
 
 # 一、springboot Actuator
 
@@ -764,3 +770,89 @@ public String hotTest(@RequestParam(required = false) String a, @RequestParam(re
 
 ## （8）代码方式配置规则（待整理）
 
+
+
+## （9）@SentinelResource注解
+
+源码：com.alibaba.csp.sentinel.annotation.aspectjSentinelResourceAspect  **（待看）**
+
+```java
+    @GetMapping("testSentinelAPI")
+    @SentinelResource(
+            value = "testSentinelAPI",
+            blockHandler = "block",
+//            blockHandlerClass =
+//            fallbackClass =
+            fallback = "fallback"
+    )
+    public String testSentinelAPI(@RequestParam(required = false) String a){
+        if(StringUtils.isBlank(a))
+            throw new IllegalArgumentException("a is null");
+        return a;
+    }
+    /**
+     * @Description 处理限流或降级
+     * @Author running4light朱泽雄
+     * @CreateTime 10:24 2021/7/20
+     * @Return
+     */
+    public String block(String a, BlockException e){
+        log.warn("blocking...", e);
+        return "blocking...";
+    }
+    /**
+     * @Description 处理降级
+     * @Author running4light朱泽雄
+     * @CreateTime 10:24 2021/7/20
+     * @Return
+     */
+    public String fallback(String a){
+        log.warn("fallback...");
+        return "fallback...";
+    }
+```
+
+## （10）RestTemplate整合Sentinel
+
+注入bean时添加@SentinelRestTemplate
+
+yaml配置开关：resttemplate.sentinel.enabled
+
+源码：com.alibaba.cloud.sentinel.custom.SentinelBeanPostProcessor    **（待看）**
+
+## （11）Feign整合Sentinel
+
+源码：com.alibaba.cloud.sentinel.feign.SentinelFeign   **（待看）**
+
+```yaml
+feign:
+  sentinel:
+    enabled: true
+```
+
+获取异常：
+
+```java
+@FeignClient(value = "basis2",
+//    fallback = XXX.class,
+    fallbackFactory = Basis2FeignClientFallBackFactory.class
+)
+```
+
+```java
+@Component
+public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2Web> {
+    private Logger logger = LoggerFactory.getLogger(Basis2FeignClientFallBackFactory.class);
+    @Override
+    public Basis2Web create(Throwable cause) {
+
+        return new Basis2Web() {
+            @Override
+            public String findBasis2() {
+                logger.warn("发生限流", cause);
+                return "发生限流";
+            }
+        };
+    }
+}
+```
