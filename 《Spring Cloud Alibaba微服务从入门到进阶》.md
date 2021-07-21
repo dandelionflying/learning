@@ -1159,7 +1159,46 @@ spring:
         - After=2017-01-20T17:42:47.789-07:00[America/Denver]
 ```
 
+eg:
 
+```yaml
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+    gateway:
+      discovery:
+        locator:
+#          让gateway通过服务发现组件找到其他微服务
+          enabled: true
+      routes:
+        - id: basis_route
+#          uri: localhost:8001
+          uri: lb://basis
+          predicates:
+#            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
+#            - After=2021-07-23T00:00:00+08:00[Asia/Shanghai]
+#            - After=2021-07-21T18:59:40.888481300+08:00[Asia/Shanghai]
+#            - Query=a, 1.
+            - Path=/*/basisTest/**
+        - id: basis2_route
+          uri: lb://basis2
+          predicates:
+#            - After=2021-07-21T18:59:40.888481300+08:00[Asia/Shanghai]
+            - Path=/*/basis2/**
+```
+
+测试接口： http://localhost:1111/basis/basisTest/getPath
+
+期初配置一直不生效，怀疑是依赖有问题，后来将路径中的服务名去掉:http://localhost:1111/basisTest/getPath
+
+生效了。。。。
+
+注意！！！！
+
+这里的path只是请求路径，**不用刻意去强调开头是不是服务名**，需要请求basis服务的`/basisTest/getPath`时，根据匹配规则`/*/basisTest/**`匹配通过后，将整个/basisTest/getPath请求转发的uri配置的 lb://basis 上去
 
 ### Before
 
