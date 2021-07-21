@@ -870,8 +870,9 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
 
 
 - 推模式（Push-based:）:规则中心推送，客户端监听获取
-  - 使用：继承 `AbstractDataSource`，在构造方法中添加监听器，并实现readSource()从指定数据源读取string格式的配置数据。
-
+  
+- 使用：继承 `AbstractDataSource`，在构造方法中添加监听器，并实现readSource()从指定数据源读取string格式的配置数据。
+  
 - 注册数据源
 
   - eg:
@@ -906,10 +907,19 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
 
     **规则存储路径需提前建好**
 
+    依赖
+
+    ```xml
+  <dependency>
+        <groupId>com.alibaba.csp</groupId>
+        <artifactId>sentinel-datasource-extension</artifactId>
+    </dependency>
+    ```
+  
     https://github.com/dandelionflying/SpringCLoudAlibaba/tree/master/basis/src/main/java/cn/running4light/basis/init/FileDataSourceInitFunc.java
-
+  
     注册规则数据源：存在文件中
-
+  
     ```java
     
     public class FileDataSourceInitFunc implements InitFunc {
@@ -938,14 +948,15 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
         }
     
         private Converter<String, List<FlowRule>> flowRuleListParser = source -> JSON.parseObject(
-                source,
+              source,
                 new TypeReference<List<FlowRule>>() {
-                }
+              }
         );
         private <T> String encodeJson(T t) {
             return JSON.toJSONString(t);
         }
     }
+    
     ```
-
-  - 
+  
+    
