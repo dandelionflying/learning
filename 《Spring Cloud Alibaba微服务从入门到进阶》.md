@@ -861,6 +861,8 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
 
 “我们推荐**通过控制台设置规则后将规则推送到统一的规则中心，客户端实现** `ReadableDataSource` **接口端监听规则中心实时获取变更**”
 
+> https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95
+
 <img src="pictures\sentinel--动态规则.png" style="zoom:75%;">
 
 - 拉模式（Pull-based:）：客户端主动向规则中心拉取规则，规则中心可以是RDBMS/文件/VCS等。
@@ -959,4 +961,48 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
     
     ```
   
+  - 推模式：nacos
+  
+    **如果只是按照文档操作，测试失败，没有成功将sentinel规则写入nacos配置中心。**
+  
+    ```java
+    public class NacosDataSourceInitFunc implements InitFunc {
+        final String remoteAddress = "localhost:8848";
+        final String groupId = "SENTINEL_GROUP";
+        final String dataId = "basis-nacos-flow";
+        @Override
+        public void init() throws Exception {
+            // remoteAddress 代表 Nacos 服务端的地址
+            // groupId 和 dataId 对应 Nacos 中相应配置
+            ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new NacosDataSource<>(remoteAddress, groupId, dataId,
+                    source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
     
+    
+            FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+    
+        }
+    }
+    ```
+  
+    ```xml
+    <dependency>
+        <groupId>com.alibaba.csp</groupId>
+        <artifactId>sentinel-datasource-nacos</artifactId>
+    </dependency>
+    ```
+  
+    ```yaml
+    #      datasource:
+    #        # 名称随意
+    #        flow:
+    #          nacos:
+    #            server-addr: localhost:8848
+    #            dataId: ${spring.application.name}-flow-rules
+    #            groupId: SENTINEL_GROUP
+    #            # 规则类型，取值见：
+    #            # org.springframework.cloud.alibaba.sentinel.datasource.RuleType
+    #            rule-type: flow
+    ```
+  
+  - 
+
