@@ -1003,6 +1003,294 @@ public class Basis2FeignClientFallBackFactory implements FallbackFactory<Basis2W
     #            # org.springframework.cloud.alibaba.sentinel.datasource.RuleType
     #            rule-type: flow
     ```
-  
-  - 
 
+## （13）集群流控（待看）
+
+> https://github.com/alibaba/Sentinel/wiki/%E9%9B%86%E7%BE%A4%E6%B5%81%E6%8E%A7
+
+
+
+
+
+# 十二、SpringCloudGateway
+
+## （1）官方文档
+
+https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#gateway-starter
+
+## （2）初始搭建
+
+依赖
+
+```xml
+<properties>
+    <spring-cloud.version>Hoxton.SR3</spring-cloud.version>
+    <spring-cloud-alibaba.version>2.2.6.RC1</spring-cloud-alibaba.version>
+</properties>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <!--            <groupId>org.springframework.cloud</groupId>-->
+        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        <!--<version>2.2.5.RELEASE</version>-->
+    </dependency>
+
+</dependencies>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>${spring-cloud.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <!--整合springcloud alibaba-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <version>${spring-cloud-alibaba.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+配置
+
+```yaml
+server:
+  port: 1111
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+    gateway:
+      discovery:
+        locator:
+#          让gateway通过服务发现组件找到其他微服务
+          enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+```
+
+## （3）基本概念
+
+Route路由
+
+Predicate谓词
+
+Filter过滤器
+
+基本流程
+
+<img src="pictures\gateway.png" style="zoom:75%;">
+
+## （4）路由配置[Configuring Route ](https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#configuring-route-predicate-factories-and-gateway-filter-factories)
+
+两种方式：快捷（shortcuts）配置、完整的配置--谓词（predicates）配置方式的区别
+
+快捷（shortcuts）配置
+
+eg:
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: after_route
+        uri: https://example.org
+        predicates:
+        - Cookie=mycookie,mycookievalue
+```
+
+完整的配置（Fully Expanded Arguments）
+
+eg:
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: after_route
+        uri: https://example.org
+        predicates:
+        - name: Cookie
+          args:
+            name: mycookie
+            regexp: mycookievalue
+```
+
+## （5）路由谓词工厂[Route Predicate Factories](https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#gateway-request-predicates-factories) （待测试）
+
+### After
+
+此路由匹配  当前配置的时间  之后发出的任何请求
+
+参数类型为：datetime（a java `ZonedDateTime` 即带时区信息的时间）
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: after_route
+        uri: https://example.org
+        predicates:
+        - After=2017-01-20T17:42:47.789-07:00[America/Denver]
+```
+
+
+
+### Before
+
+此路由匹配  当前配置的时间  之前发出的任何请求
+
+参数类型为：datetime（a java `ZonedDateTime` 即带时区信息的时间）
+
+```yaml
+# ……省略
+        predicates:
+        - Before=2017-01-20T17:42:47.789-07:00[America/Denver]
+```
+
+
+
+### Between
+
+此路由匹配  当前配置起始时间  之间发出的任何请求
+
+参数类型为：两个datetime（a java `ZonedDateTime` 即带时区信息的时间）
+
+```yaml
+# ……省略
+        predicates:
+        - Between=2017-01-20T17:42:47.789-07:00[America/Denver], 2017-01-21T17:42:47.789-07:00[America/Denver]
+```
+
+
+
+### Cookie
+
+此路由匹配  包含**名为Chocolate的cookie并且值能够与ch.p 正则匹配**的请求。
+
+参数类型为：一个普通string+一个java正则表达式
+
+```yaml
+# ……省略
+        predicates:
+        - Cookie=chocolate, ch.p
+```
+
+
+
+### Header
+
+此路由匹配  **请求头包含名为 `参数1`且值能够与 `参数2` 正则匹配** 的请求
+
+```yaml
+# ……省略
+        predicates:
+        - Header=X-Request-Id, \d+
+```
+
+
+
+### Host
+
+根据请求的host过滤
+
+```yaml
+# ……省略
+        predicates:
+        - Host=**.somehost.org,**.anotherhost.org
+```
+
+
+
+### Method
+
+匹配所配置的request method
+
+```yaml
+# ……省略
+        predicates:
+        - Method=GET,POST
+```
+
+### Path
+
+根据请求路径匹配
+
+```yaml
+# ……省略
+        predicates:
+        - Path=/red/{segment},/blue/{segment}
+```
+
+
+
+### Query
+
+根据请求参数匹配
+
+```yaml
+# ……省略
+        predicates:
+        - Query=red, gree.
+```
+
+此路由匹配  **请求参数包含 `参数1`  且 `参数1` 的值与`参数2`正则匹配**  的请求
+
+参数2非必需
+
+### RemoteAddr
+
+根据ip地址匹配
+
+```yaml
+# ……省略
+        predicates:
+        - RemoteAddr=192.168.1.1/24
+```
+
+
+
+### Weight
+
+根据设置的权重转发到不同的uri
+
+```yaml
+# ……省略
+      - id: weight_high
+        uri: https://weighthigh.org
+        predicates:
+        - Weight=group1, 8
+      - id: weight_low
+        uri: https://weightlow.org
+        predicates:
+        - Weight=group1, 2
+```
+
+参数1：划分组  参数2：比例
+
+（将约 80% 的流量转发到 weighthigh.org，将约 20% 的流量转发到 weightlow.org）
