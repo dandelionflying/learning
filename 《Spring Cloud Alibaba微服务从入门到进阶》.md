@@ -1373,5 +1373,42 @@ org.springframework.cloud.gateway.filter.NettyRoutingFilter
 
 暂时只测试这一项，剩余二十多种用到再说
 
+相关值得一看的源码：
 
+org.springframework.cloud.gateway.filter.factory.RequestSizeGatewayFilterFactory
+
+
+
+## （7）监控 API [Actuator API](https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#actuator-api)
+
+
+
+| 路径                                  | 内容             |
+| ------------------------------------- | ---------------- |
+| /actuator/gateway/routes              | 路由列表         |
+| /actuator/gateway/globalfilters       | 全局过滤器列表   |
+| /actuator/gateway/routefilters        | 所有过滤器工厂   |
+| /actuator/gateway/routes/{id}--GET    | 根据route_id查询 |
+| /actuator/gateway/routes/{id}--POST   | 新增路由         |
+| /actuator/gateway/routes/{id}--DELETE | 删除路由         |
+
+监控路由有利于错误排查
+
+另外，也可以配置某些包的日志级别为debug或trace
+
+```properties
+org.springframework.cloud.gateway
+org.springframework.http.server.reactive
+org.springframework.web.reactive
+org.springframework.boot.autoconfigure.web
+reactor.netty
+redisratelimiter
+```
+
+也可以使用**wiretap**（需要高版本的支持）
+
+```properties
+spring.cloud.gateway.httpserver.wiretap=true
+spring.cloud.gateway.httpclient.wiretap=true
+```
 
