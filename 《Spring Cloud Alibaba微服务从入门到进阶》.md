@@ -1187,7 +1187,7 @@ spring:
           uri: lb://basis2
           predicates:
 #            - After=2021-07-21T18:59:40.888481300+08:00[Asia/Shanghai]
-            - Path=/*/basis2/**
+            - Path=/*/basis2Test/**
 ```
 
 测试接口： http://localhost:1111/basis/basisTest/getPath
@@ -1196,9 +1196,11 @@ spring:
 
 生效了。。。。
 
-注意！！！！
+**注意！！！！**
 
 这里的path只是请求路径，**不用刻意去强调开头是不是服务名**，需要请求basis服务的`/basisTest/getPath`时，根据匹配规则`/*/basisTest/**`匹配通过后，将整个/basisTest/getPath请求转发的uri配置的 lb://basis 上去
+
+服务controller的mapping统一格式为 `/服务名/xxx`
 
 ### Before
 
@@ -1333,3 +1335,43 @@ spring:
 参数1：划分组  参数2：比例
 
 （将约 80% 的流量转发到 weighthigh.org，将约 20% 的流量转发到 weightlow.org）
+
+## （6）网关过滤器工厂[`GatewayFilter` Factories](https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#gatewayfilter-factories)
+
+“**Route filters allow the modification of the incoming HTTP request or outgoing HTTP response in some manner**. Route filters are scoped to a particular route. Spring Cloud Gateway includes many built-in GatewayFilter Factories.”
+
+路由过滤器允许以某种方式修改request和response。
+
+### AddRequestHeader
+
+转发时，下游的http requestheader中会携带配置的键值对
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: basis_route
+          uri: lb://basis
+          predicates:
+            - Path=/*/basisTest/**
+          filters:
+            - AddRequestHeader=X-Request-red, blue
+```
+
+验证在NettyRoutingFilter中打断点可以查看header内容
+
+```
+org.springframework.cloud.gateway.filter.NettyRoutingFilter
+```
+
+<img src="pictures\gateway-filter-test.png" style="zoom:70%">
+
+
+
+
+
+暂时只测试这一项，剩余二十多种用到再说
+
+
+
