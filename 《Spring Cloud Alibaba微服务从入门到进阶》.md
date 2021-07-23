@@ -1412,3 +1412,95 @@ spring.cloud.gateway.httpserver.wiretap=true
 spring.cloud.gateway.httpclient.wiretap=true
 ```
 
+# 十三、认证授权
+
+## （1）AOP实现登录状态检查
+
+依赖
+
+```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+```
+自定义注解和切面
+
+```java
+public @interface CheckLogin {
+}
+/**
+ * @author running4light
+ * @description 定义用于登录校验的切面
+ * @createTime 2021/7/22 18:55
+ */
+@Aspect
+@Component
+public class CheckLoginAspect {
+    @Around("@annotation(cn.running4light.basis.auth.CheckLogin)")
+    public Object checkLogin(ProceedingJoinPoint point) throws Throwable {
+        System.err.println("进来了。。。。。");
+        // 从header获取token
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = attributes.getRequest();
+        String token = request.getHeader("token");
+
+        // 校验token  这里简单测试一下
+        if(!"test".equals(token)){
+            throw new SecurityException("token不合法");
+        }
+        request.setAttribute("userInfo","zzx");
+        // 放行
+        return point.proceed();
+    }
+}
+```
+
+测试：http://localhost:1111/basis/testLogin/getMsg
+
+结果：
+
+<img src="pictures\AOP登录校验测试1.png" style="zoom:70%">
+
+<img src="pictures\AOP登录校验测试2.png" style="zoom:60%">
+
+## （2）token的传递
+
+@RequestHeader("")--了解即可，一般不采用这种方式
+
+使用拦截器转发token
+
+TokenRequestInterceptor
+
+```java
+public class TokenRequestInterceptor implements RequestInterceptor {
+    @Override
+    public void apply(RequestTemplate template) {
+        System.err.println("token转发ing");
+        // 获取token
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = attributes.getRequest();
+        String token = request.getHeader("token");
+
+        // 传递token
+        if(!"".equals(token)){
+            template.header("token", token);
+        }
+    }
+}
+```
+
+```yaml
+feign:
+  client:
+    config:
+      basis2:
+        loggerLever: full
+        requestInterceptors:
+          - cn.running4light.basis.auth.interceptor.TokenRequestInterceptor
+```
+
+测试：http://localhost:8555/basis/testLogin/testTokenTransfer
+
