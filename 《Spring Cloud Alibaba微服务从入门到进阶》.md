@@ -1561,3 +1561,69 @@ public RestTemplate restTemplate2(){
 ```
 测试：http://localhost:8555/basis/testLogin/testTokenTransfer3
 
+## （3）JWT [JWT官方说明](https://jwt.io/introduction)
+
+- jwt由三部分组成：header、payload、signature
+  - header：算法类型和token类型
+
+    eg:
+    {  "alg": "HS256",  "typ": "JWT" }
+
+  - payload:
+
+    “The second part of the token is the payload, which contains the claims. Claims are statements about an entity (typically, the user) and additional data. There are three types of claims: *registered*, *public*, and *private* claims.”
+
+    payload存放额外的信息，例如用户信息等
+
+  - signature：将base64后的header、base64后的payload，特定的字符串做签名
+
+    HMACSHA256(  base64UrlEncode(header) + "." +  base64UrlEncode(payload),  secret)
+
+- 完整的jwt为
+
+  **base64(header).base64(payload).base64(signature)**
+
+  
+
+## （4）AOP方式实现用户权限验证
+
+https://github.com/dandelionflying/SpringCLoudAlibaba/tree/master/basis/src/main/java/cn/running4light/basis/auth/CheckAuthAspect
+
+> **未使用jwt，仅测试基础逻辑**
+
+定义注解
+
+```java
+@Documented
+@Target({METHOD})
+@Retention(RUNTIME)
+public @interface CheckAuth {
+    String value() default "";
+}
+```
+
+定义切面
+
+```java
+@Around("@annotation(cn.running4light.basis.auth.CheckAuth)")
+public Object checkAuth(ProceedingJoinPoint point) throws Throwable {
+    try {
+        checkToken();
+        HttpServletRequest request = getHttpServletRequest();
+        String role = (String) request.getAttribute("role");
+        // 实际需要通过jwt获取claim  拿到权限信息
+        MethodSignature signature = (MethodSignature)point.getSignature();
+        Method method = signature.getMethod();
+        CheckAuth annotation = method.getAnnotation(CheckAuth.class);
+        String value = annotation.value();
+        if (!StringUtils.equals(value,role))
+            throw new SecurityException("Access fail");
+    } catch (Throwable throwable) {
+        throw new SecurityException("Access fail", throwable);
+    }
+    logger.info("Access Success");
+    return point.proceed();
+}
+```
+
+测试：http://localhost:8555/basis/role/testRole header携带：token:test  role:admin
