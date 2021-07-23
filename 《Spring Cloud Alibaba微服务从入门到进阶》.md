@@ -1587,7 +1587,7 @@ public RestTemplate restTemplate2(){
 
 ## （4）AOP方式实现用户权限验证
 
-https://github.com/dandelionflying/SpringCLoudAlibaba/tree/master/basis/src/main/java/cn/running4light/basis/auth/CheckAuthAspect
+https://github.com/dandelionflying/SpringCLoudAlibaba/tree/master/basis/src/main/java/cn/running4light/basis/auth
 
 > **未使用jwt，仅测试基础逻辑**
 
@@ -1627,3 +1627,59 @@ public Object checkAuth(ProceedingJoinPoint point) throws Throwable {
 ```
 
 测试：http://localhost:8555/basis/role/testRole header携带：token:test  role:admin
+
+# 十四、nacos配置中心
+
+## （1）从nacos配置中心获取配置
+
+依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+</dependency>
+```
+
+```yaml
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+#        默认是application.name 配置了则以此配置为准
+        prefix: basis
+#        如果不是默认的分组需要加上分组名
+        group: config_group
+        #加上控制台会不停输出config changed信息
+#        namespace: public
+  application:
+    name: basis
+  profiles:
+    active: dev
+```
+
+测试：http://localhost:8555/basis/testConfig/getConfigFromNacos
+
+## （2）共享nacos配置中心配置
+
+配置
+
+```yaml
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        prefix: basis
+        group: config_group
+        # 公共配置
+        shared-configs[0]:
+          data-id: common1.yaml # 配置文件名-Data Id
+          group: config_group   # 默认为DEFAULT_GROUP
+          refresh: true   # 是否动态刷新，默认为false
+```
+
+测试：http://localhost:8555/basis/testConfig/getCommonConfigFromNacos
