@@ -1467,9 +1467,9 @@ public class CheckLoginAspect {
 
 ## （2）token的传递
 
-@RequestHeader("")--了解即可，一般不采用这种方式
+### feign：使用拦截器转发token
 
-使用拦截器转发token
+> @RequestHeader("")--了解即可，一般不采用这种方式
 
 TokenRequestInterceptor
 
@@ -1503,4 +1503,61 @@ feign:
 ```
 
 测试：http://localhost:8555/basis/testLogin/testTokenTransfer
+
+### RestTemplate的token传递
+
+普通方式--exchange（）
+
+```java
+public ResponseEntity<String> tokenTransfer2(HttpServletRequest request) {
+    // 根据服务名获取目标服务的主机名端口号等信息
+    List<ServiceInstance> basis2 = client.getInstances("basis2");
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("token", request.getHeader("token"));
+    ResponseEntity<String> exchange = restTemplate.exchange(
+            "http://" + ServiceList.basis2 + "/basis2/basis2Test/testTokenTransfer2",
+            HttpMethod.GET,
+            new HttpEntity<>(headers),
+            String.class
+    );
+    return exchange;
+}
+```
+
+拦截器方式
+
+```java
+public class TokenRestTemplateInterceptor implements ClientHttpRequestInterceptor {
+    private Logger logger = LoggerFactory.getLogger(TokenRestTemplateInterceptor.class);
+    @Override
+    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        logger.info("token转发ing");
+        // 获取token
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest httpRequest = attributes.getRequest();
+        String token = httpRequest.getHeader("token");
+        request.getHeaders().add("token", token);
+
+        // 保证请求继续执行（保证其他拦截器正常执行）
+        return execution.execute(request, body);
+    }
+}
+```
+
+```java
+@Bean
+@LoadBalanced // 加上@LoadBanlanced注解，就可以直接用服务名称进行服务间通信，不需要再去获取hostport等信息
+public RestTemplate restTemplate2(){
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setInterceptors(
+            Collections.singletonList(
+                    new TokenRestTemplateInterceptor()
+            )
+    );
+    return restTemplate;
+}
+```
+测试：http://localhost:8555/basis/testLogin/testTokenTransfer3
 
