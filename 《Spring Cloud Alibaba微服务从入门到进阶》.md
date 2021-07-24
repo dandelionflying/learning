@@ -1759,7 +1759,7 @@ https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATES
             probability: 1.0
     ```
 
-  ## （3）zipkin持久化 [Storage Component](https://github.com/openzipkin/zipkin#storage-component)
+## （3）zipkin持久化 [Storage Component](https://github.com/openzipkin/zipkin#storage-component)
 
 Cassandra？ElasticSearch？
 
