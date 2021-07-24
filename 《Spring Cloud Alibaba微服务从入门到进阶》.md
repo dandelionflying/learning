@@ -1683,3 +1683,27 @@ spring:
 ```
 
 测试：http://localhost:8555/basis/testConfig/getCommonConfigFromNacos
+
+## （3）优先级
+
+- 远程配置>本地配置
+
+  本地application.yaml配置  `testPriority: localConfig`
+
+  远程nacos配置 `testPriority: remoteConfig`
+
+  测试：http://localhost:8555/basis/testConfig/testPriority
+
+  结果：remoteConfig
+
+- 可以修改，但必须在远程配置中配置，本地配置无效：
+
+  ```properties
+  #默认false
+  spring.cloud.config.allow-override: true
+  #默认false
+  spring.cloud.config.override-none: true
+  # spring.cloud.config.override-systemm-properties: false 默认true
+  ```
+
+  
