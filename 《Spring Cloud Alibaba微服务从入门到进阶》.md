@@ -1707,3 +1707,63 @@ spring:
   ```
 
   
+
+## （4）nacos集群
+
+官方文档：以后再尝试搭建
+
+https://nacos.io/zh-cn/docs/cluster-mode-quick-start.html
+
+# 十五、调用链监控
+
+## （1）sleuth
+
+https://docs.spring.io/spring-cloud-sleuth/docs/3.0.4-SNAPSHOT/reference/html/
+
+
+
+## （2）zipkin
+
+- zipkin server 下载
+
+https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec
+
+- 运行 java -jar zipkin-server-2.12.9-exec.jar
+
+- 访问 http://localhost:9411
+
+- 与springcloud整合
+
+  - 依赖
+
+    ```xml
+    <!-- zipkin (已包含了sleuth)-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
+    <dependency>
+    ```
+
+    
+
+  - 配置
+
+    ```yaml
+    spring:
+      zipkin:
+        base-url: http://localhost:9411
+        sleuth:
+          sampler:
+          #      抽样率。默认0.1,数值越大，对系统性能的影响越大
+            probability: 1.0
+    ```
+
+  ## （3）zipkin持久化 [Storage Component](https://github.com/openzipkin/zipkin#storage-component)
+
+Cassandra？ElasticSearch？
+
+**另找时间再完成**
+
+
+
