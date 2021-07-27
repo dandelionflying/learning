@@ -50,3 +50,53 @@ null key？
 线程安全方式：**jdk1.7时**，concurrenthashmap使用**分段锁**，每一把锁只锁容器其中一部分数据，多线程访问容器里的不同数据段的数据，不存在锁竞争，提高并发访问率。**jdk1.8后**，采用**CAS（乐观锁）和synchronized**来保证并发安全  ，**node数组+链表+红黑树**，synchronized只锁定当前链表或红黑二叉树的首节点，这样只要hash不冲突，就不会产生并发  。
 
 hashtable使用**同一把锁**，例如，使用put 添加元素，另一个线程不能使用 put 添加元素，也不能使用 get，竞争会越来越激烈效率越低。
+
+#### 10、synchronized
+
+加到非static方法上是给对象实例加锁
+
+static方法：类锁住
+
+代码块synchronized（this）：对象锁住
+
+代码块synchronized（class）：类锁住
+
+#### 11、 指令重排问题
+
+> 需要注意 uniqueInstance 采用 volatile 关键字修饰也是很有必要。
+> uniqueInstance 采用 volatile 关键字修饰也是很有必要的， `uniqueInstance = new Singleton()`; 这段代码其实是分为三步执行
+>
+> 为 uniqueInstance 分配内存空间、初始化 uniqueInstance、将 uniqueInstance 指向分配的内存地址
+> 但是由于 JVM 具有指令重排的特性，执行顺序有可能变成 1->3->2。指令重排在单线程环境下不会出先问题，但是在多线程环境下会导致一个线程获得还没有初始化的实例。例如，线程 T1 执行了 1 和 3，此时 T2 调用
+> getUniqueInstance() 后发现 uniqueInstance 不为空，因此返回 uniqueInstance，但此时 uniqueInstance 还未被初始化。
+> 使用 volatile 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。  
+
+#### 12、synchronized和ReenTrantLock区别
+
+都是可重入锁
+
+synchronized依赖于jvm，ReenTrantLock依赖于API（需要使用lock(),unlock(),tryfinally）
+
+ReenTrantLock可指定是公平锁还是非公平锁（构造函数可配置）
+
+#### 13、volatile  
+
+禁止jvm指令重排
+
+#### 14、synchronized、volatile区别
+
+volatile只能作用于变量
+
+volatile主要用于解决变量在多个线程之间的可见性，synchronized解决多个线程之间访问资源的同步性
+
+#### 15、为什么用线程池？
+
+降低资源消耗：重复利用已创建的线程降低创建销毁造成的消耗
+
+提高响应速度：取出即用，不需创建
+
+提高线程的可管理性：利于调优
+
+#### 16、Runnable Callable区别
+
+Runnable的run()无返回值，Callable的run()有返回值
