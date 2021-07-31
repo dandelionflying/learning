@@ -465,3 +465,128 @@ feign底层大致流程是，对接口使用了feign注解之后，他会针对�
 #### 63.微服务网关的动态路由
 
 通过可视化的界面把路径与服务的对应写到数据库库（db，redis，mongodb，甚至是文件）中，网关微服务定时去获取最新的路由信息，放到网关的路由表中去。
+
+#### 64.灰度发布
+
+通过数据库配置url是否启用灰度发布，写一个请求的过滤器，发现灰度开启了，就依据特定的逻辑去决定是否要请请求转发到新版本的服务上去。这里的逻辑可能是特定的用户群、特定的角色或是随机抽样一定的比例等等。
+
+#### 65.一个服务开发到上线经历了些什么？
+
+开发阶段，根据明确的需求，以及api文档，设计接口，开发，功能自测，对性能要求高的做压测，对可能会产生并发问题的做并发测试。发布时，对于新的服务，通过可视化页面配置动态路由，开启灰度发布，没问题后将新服务设置为正式版本（比如元数据中设置current标识为正式版本），关闭灰度发布。
+
+#### 66.BIO、NIO、AIO有什么区别？
+
+BIO：同步阻塞式IO，就是平常经常使用的IO
+
+NIO：同步非阻塞式IO，通过channel，实现多路复用
+
+AIO：NIO2，异步非阻塞IO，异步IO基于事件和回调机制
+
+#### 67.Array和ArrayList有什么区别？
+
+ArrayList不能放基本类型
+
+ArrayList封装了更多方便的方法
+
+#### 68.并行并发的区别？
+
+并发是同一时刻多个进程同时跑，并发是同一时间间隔对**同一事物**的多个事件
+
+#### 69.ThreadLocal是什么？有哪些应用场景？
+
+用来解决多线程访问同一个共享变量时的并发问题
+
+> ThreadLocal是jdk提供的，它提供了**线程本地变量**，也就是如果创建了一个ThreadLocal变量，那么访问这个变量的每一个线程都会有这个变量的一个本地副本。当多个线程操作这个变量时，实际操作的是自己本地内存里面的变量，从而避免了线程安全问题。创建一个ThreadLocal变量后，每个线程都会复制一个变量到自己的本地内存。
+
+也就是说，业务中必须要使用一个全局变量，而又会涉及多线程，则可以使用ThreadLocal。
+
+```java
+public class ThreadLocalTest {
+    static ThreadLocal<String> threadLocal = new ThreadLocal<>(){
+        @Override
+        protected String initialValue(){ return "initvalue"; }
+    };
+    public static void main(String[] args) {
+        Thread threadOne = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                threadLocal.set("threadOne local");
+                System.err.println("t1" + ": " +threadLocal.get());
+            }
+        });
+        Thread threadTwo = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                threadLocal.set("threadTwo local");
+                System.err.println("t2" + ": " +threadLocal.get());
+            }
+        });
+        threadOne.start();// t1: threadOne local
+        threadTwo.start();// t2: threadOne local
+            Thread.sleep(2000);
+        System.err.println(threadLocal.get());// initvalue
+    }
+}
+```
+
+#### 70.java内存模型
+
+java内存模型规定，将所有的变量都放在主内存中，当线程使用变量时，会把主内存里的变量复制到自己的工作内存（cpu的一级缓存，或所有cpu共享的二级缓存，或cpu寄存器），线程读写变量时操作的是自己工作内存中的变量。
+
+<img src="pictures\java内存模型.png">
+
+#### 71.共享变量的内存可见性问题
+
+双核cpu情景下，对于变量X，当两级缓存均空时，
+
+线程A获取X发现没有则去主内存加载，更新到两级缓存中；
+
+-->接着线程A执行X=1，将其写入两级缓存，并刷新主内存，此时两级缓存、主内存都是1
+
+-->线程B获取X，一级缓存为空则去二级缓存获取，二级缓存命中了，更新到一级缓存；
+
+-->线程B执行X=2，更新两级缓存，并刷新到主内存；
+
+-->此时一切正常；
+
+-->当线程A再次读取X时，对于A来讲，一级缓存不为空，X=1，直接返回。那么就有问题了，主内存明明是2才对。
+
+这就是共享变量的内存不可见问题，**也就是变成B写入的值对线程A不可见**。
+
+**而volatile可以保证可见性**，。
+
+#### 72.synchronized的内存语义
+
+进入synchronized的内存语义就是把再synchronized内使用到的变量从线程的工作内存中清除，这样synchronized块中使用到该变量时就不会从线程的工作内存中获取而是直接从主内存获取。退出synchronized块的内存语义是把再synchronized块内对共享变量的修改刷新到主内存。
+
+**synchronized也可以保证共享变量内存的可见性，但会引起线程上下文切换，带来线程调度开销。**
+
+#### 73.volatile可见性？
+
+保证了内存可见性。
+
+当一个变量被声明为volatile时，线程在写入变量时不会把值缓存在寄存器或者其他地方，而是把值刷新到主内存。其他线程读取该共享变量时，会从主内存重新获取最新值，而不是使用当前线程的工作内存的值。
+
+#### 74.volatile能保证原子性吗？
+
+不能
+
+#### 75.volatile场景？
+
+写入变量不依赖变量的当前值时。假如依赖，那么会有获取+计算+写入的过程，这个过程不是原子性的。
+
+读写变量时没有加锁。锁本身保证了内存可见性，这时不需要用volatile。
+
+#### 76.可重入锁的原理？
+
+内部维护了一个线程标识，表示该锁被那个线程占用，然后关联一个计数器，初始为0，。线程获取了锁，计数器+1，释放则-1。当获取了该锁的线程再次获取时发现线程标识是自己，计数器+1。
+
+#### 77.redis有哪些功能？
+
+数据缓存
+
+分布式锁
+
+消息队列
+
+数据持久化
