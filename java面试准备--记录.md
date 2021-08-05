@@ -590,3 +590,116 @@ java内存模型规定，将所有的变量都放在主内存中，当线程使�
 消息队列
 
 数据持久化
+
+------
+
+分割（主要为了打印排版）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 78.怎么让线程顺序执行
+
+场景1：线程池的单例方式Executors.newSingleThreadExecutor(); 因为是单例的，只有当前线程执行完毕被回收到线程池中时，则塞队列中的下一个任务才会进来。
+
+场景2：主线程jion
+
+场景3：线程内部join上一个线程
+
+场景4：配合object的 wait方法和notify方法以及同步关键字synchronized使用。
+
+场景5：使用ReentrantLock的 lock() unlock() 方法（待尝试）
+
+场景6： 使用CountDownLatch（cd），构造函数中传入int，指定初始值（内部是一个基于AQS的sync），使用cd.countDown()方法对其进行倒计时，第二个线程内显示使用cd.await()方法，当这个sync减到0时，继续执行代码，不然线程一直等待。
+
+场景7：使用**CyclicBarrier**，
+
+场景8：信号量机制**Sephmore**，acquire()方法请求许可，release()方法释放持有的许可。
+
+https://blog.csdn.net/sinat_41832255/article/details/101148319
+
+#### 79.redis几个数据类型的应用场景
+
+String：
+
+hash：对象信息，登录信息等
+
+list：关注列表等
+
+#### 80.CAS原理
+
+CAS即“compare and swap”，首先检查某块内存的值是否跟之前我读取时的一样，不一样则表示期间此内存值已经被别的线程更改过，舍弃本次操作，否则说明期间没有其他线程对此内存值操作，可以把新的值设置给此内存。CAS具有原子性，原子性由CPU硬件指令实现保证，即使用JNI调用Native方法，调用硬件级别指令，JDK中提供了Unsafe类执行这些操作。
+
+#### 81.jvm对java原生锁的优化？
+
+java线程与操作系统的原生线程有映射关系，线程的阻塞或唤醒都需要操作系统协助，这就涉及用户态到内核态的转换。
+
+自旋锁：线程阻塞前先自旋等待一段时间，可能在等待期间其他线程已经解锁，就无需让线程执行阻塞操作，避免用户态到内核态的切换。
+
+偏向锁
+
+轻量级锁
+
+重量级锁
+
+#### 82.补充12.synchronized与ReetrantLOck的区别
+
+ReetrantLOck是Lock的实现类，互斥的同步锁
+
+等待可中断
+
+超时机制：过了一定的时间仍然无法获取则返回
+
+可判断是否有线程在排队等待获取锁
+
+可以相应中断请求：与synchronized不同，当获取到锁的线程被中断时能够相应中断，会抛出异常，并释放锁
+
+可以实现公平锁
+
+
+
+#### 83.java线程池原理？
+
+看代码知道，它内部维护了一个HashSet，里面存放基于AQS实现的内部类Worker，而需要执行的任务放在阻塞队列 `BlockingQueue<Runnable> workQueue`  中。大致流程就是从这个队列中不断取出需要执行的任务，放到Workers中处理。
+
+
+
+#### 84.线程池中的线程时怎么创建的？一开始就随着线程池的启动创建好的吗？
+
+线程池默认初始化后不启动Worker，等待有请求时才启动。`execute()` 方法做了些啥？三个指标：
+
+corePoolSize(核心线程数)、maximumPoolSize（最大线程数）、队列。
+
+如果正在运行的线程数量小于corePoolSize，那么马上创建线程运行这个任务。
+
+大于或等于corePoolSize，则把任务放进等待队列。队列满了之后，创建非核心线程处理任务。如果已达到最大线程数了，线程池会抛出异常 `RejectExecutionException` 
+
+#### 85.ThreadLocal一定安全吗？（需要进一步加强理解）
+
+内存泄漏问题。
+
+ThreadLocal的实现基于一个ThreadLocalMap，key为弱引用的ThreadLocal实例，value为线程变量的副本。
+
+https://juejin.cn/post/6844904046373896205
+
+#### 86.乐观锁悲观锁
+
+
+
