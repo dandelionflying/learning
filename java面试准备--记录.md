@@ -695,11 +695,72 @@ corePoolSize(核心线程数)、maximumPoolSize（最大线程数）、队列。
 
 内存泄漏问题。
 
-ThreadLocal的实现基于一个ThreadLocalMap，key为弱引用的ThreadLocal实例，value为线程变量的副本。
+ThreadLocal的实现基于一个ThreadLocalMap，Thread类中国有一个成员变量 `ThreadLocal.ThreadLocalMap threadLocals = null;` 存放全局变量的副本，
+
+key为弱引用的ThreadLocal实例：
+
+set方法：`private void set(ThreadLocal<?> key, Object value) `
+
+弱引用就意味着，只要垃圾回收器工作了，那么他就会被回收，此时key就变为null了
+
+内部entry类型：
+
+```java
+static class Entry extends WeakReference<ThreadLocal<?>> {
+    /** The value associated with this ThreadLocal. */
+    Object value;
+    Entry(ThreadLocal<?> k, Object v) {
+        super(k);
+        value = v;
+    }
+}
+```
+
+value为线程变量的副本值。
+
+**总之一定要自己去remove!!**
 
 https://juejin.cn/post/6844904046373896205
 
-#### 86.乐观锁悲观锁
+#### 86.java引用类型
+
+强引用：普通的引用声明，类似new这样的，只要强引用还存在，垃圾收集器就不会回收掉被引用的对象，需要回收则显示的将引用指向null
+
+软引用：“还有用但并非必需的对象”。对于软引用指向的对象，在系统将要发生内存溢出异常之前，会把这些对象列进回收范围之中进行第二次回收，如果这次回收还没有足够的内存，才会抛出异常。
+
+弱引用：垃圾收集器工作时，无论当前内存是否足够，都会回收掉只被弱引用关联的对象。
+
+虚引用：“幽灵引用”“幻影引用”。
+
+#### 87.设计模式
+
+工厂模式：创建型模式，主要解决接口选择问题，当需要不同条件下创建不同实例时，实际需要哪个实例交给工厂去选择。
+
+<img src="pictures\工厂模式.png" style="zoom:50%">
+
+抽象工厂：定义一个抽象类，统一标准，可以有不同的工厂实现。
+
+<img src="pictures\抽象工厂模式.png" style="zoom:50%">
+
+单例模式：
+
+懒汉：每次获取实例时判断实例是否为null
+
+恶汉：直接 `private static Singleton instance = new Singleton();`，类加载就实例化，多线程安全。
+
+建造者模式：将一个复杂的构建与其表示相分离，使得同样的构建过程可以创建不同的表示。
+
+
+
+
+
+#### 88.乐观锁悲观锁
+
+乐观锁：CAS方式（会有ABA等问题）和版本号机制
+
+悲观锁：synchronized
+
+
 
 
 
