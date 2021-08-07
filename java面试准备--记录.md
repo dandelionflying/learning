@@ -167,7 +167,7 @@ AQS两种资源共享方式：
 
 #### 22、mysql有哪些存储引擎？有什么区别？
 
-Myisam（米儿sam），innodb
+Myisam（米儿sam），innodb，memory
 
 事务上：myisam不支持，innodb支持
 
@@ -178,6 +178,8 @@ Myisam（米儿sam），innodb
 侧重点：myisam侧重性能，每次查询具有原子性，速度比innodb快
 
 选择：myisam更适合读密集，innodb适合写密集，至于实际选择，还得看实际的业务反应到数据操作上是怎样的。
+
+**memory引擎**：数据都在内存中，每个基于memory的表实际对应一个.frm磁盘文件，该文件即表结构，数据在内存中。所以生命周期很短。默认hash索引。 **可以没用过，但一定得知道有这么个东西。**
 
 #### 23.主键自增还是uuid？
 
@@ -752,9 +754,74 @@ https://juejin.cn/post/6844904046373896205
 
 
 
+#### 88.数据库三大范式还是看一下吧，指不定就有面试官喜欢问很基础的东西。。
+
+第一范式：字段原子性，不可再分。
+
+第二范式：1的基础上，每行都要可以唯一区分开，其实就是主键。
+
+第三范式：2的基础上，每个表都不包含其他表已经包含的非主键信息。（其实通常情况下，很多场景严格遵守第三范式的话，会有性能问题，比方说其实我只需要关联表的一个字段，却要去关联整个表来得到他。）
 
 
-#### 88.乐观锁悲观锁
+
+#### 89.集合框架--继承关系
+
+<img src="pictures\Collection.jpg">
+
+#### 90.集合框架--ArrayList、Vector、LinkedList异同
+
+都实现了List接口，间接实现了Collection接口。
+
+都是有序集合，允许重复。
+
+Vector线程安全。其余no
+
+ArrayList、Vector基于数组，有初始大小，容量不足动态扩充。LinkedList基于双向链表。
+
+ArrayList、Vector继承了AbstracList抽象类，LinkedList继承了AbstractSequentList。
+
+ArrayList、Vector实现了RandomAccess，这是一个空的接口，用了标识他们支持随机访问，而基于链表的LinkedList不支持随机访问。LinkedList实现了Deque--支持两端插入和删除的线性集合（双向队列）
+
+#### 91.Map--继承关系
+
+<img src="pictures\Map.jpg">
+
+#### 91.Map--IdentityHashMap HashMap
+
+IdentityHashMap是“引用比较”，HashMap是“对象比较”。
+
+换句话说，IdentityHashMap中，当且仅当k1=k2时，判断k1与k2相等。HashMap中，判断相等的条件是
+
+`k1==null ? k2==null : k1.equals(k2)`。
+
+#### 92.HashMap的数据结构是“链表散列”，即数组+链表的结合体。
+
+#### 93.hashMap put发生了什么
+
+调用put方法时，首先计算key的hash值，然后把键值对放在集合中合适的索引上。如果key值（不是指哈希值）已经存在了，则value覆盖成新值。
+
+#### 94.集合框架--List、Map、Set，存取元素时的特点
+
+Set不允许重复（这里指的是两个元素equals）。**Set内部自动排序**
+
+Set取元素的方式只能用Iterator接口遍历，没法直接去get某个元素。
+
+
+
+#### 95.List的add(int index, E element)
+
+List支持随机访问，也可以插入元素，插入位置如果有元素则该元素极其后面的元素都向后移动。
+
+```
+Inserts the specified element at the specified position in this list
+* (optional operation).  Shifts the element currently at that position
+* (if any) and any subsequent elements to the right (adds one to their
+* indices).
+```
+
+
+
+#### .乐观锁悲观锁
 
 乐观锁：CAS方式（会有ABA等问题）和版本号机制
 
