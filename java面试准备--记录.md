@@ -819,7 +819,11 @@ Inserts the specified element at the specified position in this list
 * indices).
 ```
 
+#### 96.HashSet与TreeSet区别？
 
+HashSet--哈希表，元素无序（指与插入顺序无关，内部会排序）。TreeSet--树结构，元素有序。
+
+HashSet内部使用了HashMap的键来存储，保证了不可重复。
 
 #### .乐观锁悲观锁
 
