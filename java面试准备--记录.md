@@ -492,7 +492,7 @@ ArrayList封装了更多方便的方法
 
 #### 68.并行并发的区别？
 
-并发是同一时刻多个进程同时跑，并发是同一时间间隔对**同一事物**的多个事件
+并行是同一时刻多个进程同时跑，并发是同一时间间隔对**同一事物**的多个事件
 
 #### 69.ThreadLocal是什么？有哪些应用场景？
 
@@ -1136,11 +1136,103 @@ String是不可变的（final），每次拼接其实是新开辟了内存空间
 
 抽象类可以有具体方法，接口不行（1.8之后可以了）
 
+#### 128.线程池的拒绝策略
+
+丢弃任务抛出异常
+
+丢弃任务不抛出异常
+
+丢弃队列最前面的任务，重新提交被拒绝的任务
+
+由调用线程（提交任务的线程）直接执行此任务
+
+#### 129.spring怎么解决循环依赖的？原理？
+
+> 官网说明
+>
+> https://docs.spring.io/spring-framework/docs/5.3.10-SNAPSHOT/reference/html/core.html#beans-dependency-resolution
+
+参考：https://www.jianshu.com/p/6cbbb6a9b3fd
+
+spring内部通过三级缓存来解决循环依赖问题。
+
+单例（singleton）的bean会通过三级缓存提前暴露来解决循环依赖问题。非单例的bean每次都是取新的对象，重新创建，非单例的bean没有缓存。
+
+关键类：DefaultSingletonBeanRegistry。里面使用了三个map
+
+<img src="pictures\springBean循环依赖-三级缓存.png">
+
+一级：初始化好的bean（**可以直接用的**）
+
+二级：早期实例化好的（**bean的<property>属性还没填充**）
+
+三级：存放生成bean的工厂（**生成bean**）
+
+
+
+几个重要方法：
+
+- doCreateBean：创建bean的入口
+- createBeanInstance：实例化bean
+- addSingletonFactory：实例化好的bean添加到三级缓存，提前暴露
+- populateBean：属性注入，这里会遇到循环依赖的问题
+  - getSingleton：属性注入时，获取单例bean的方法，依次从一级二级三级缓存中去找
+- initializeBean
+  - addSingleton：加入1级缓存
+
+
+
+doCreateBean()做了些什么？
+
+1. 实例化bean：createBeanInstance（）
+   1. 实例化bean后，为其创建了一个bean工厂，放到③级缓存中去。addSingletonFactory()中加3级删2级
+   2. **提前暴露的是讲bean包装起来的工厂**
+2. 填充属性：populateBean()
+   1. 此时发现③级缓存中未发现B，就要创建B--**createBeanInstance**，B实例化bean的过程中，也去创建B的工厂，放在③级缓存中
+   2. B填充属性时--**populateBean**，发现需要A，此时能在3级缓存中找到A，将A加②级删③级--getSingleton()。
+   3. 这时B成功地注入了A,属性填充完毕，下一步去初始化**initializeBean**。
+   4. B初始化完成后，是一个完整的Bean了，此时就加入①级缓存，删除②、③级缓存--addSingleton()。
+   5. 最后A在①级缓存中拿到了B，注入成功进入下一步。
+3. 初始化：initializeBean()
+   1. 初始化完毕，A也放到了①级缓存
+
+#### 130.大数据量导入导出方案
+
+导出：可以多个sheet
+
+核心思想是分批查询写入excel。如果有自增的id，根据id去拆分。
+
+很大了比如几百兆了，分多个文件打包
+
+#### 131.定时器？分布式场景定时器怎么解决？一个挂了咋办？ 
+
+- 基本方向：多个相同实例的相同定时任务，保证只有一个定时任务在执行。同时要有阻塞机制，单个节点执行任务时宕机，要能够让阻塞队列中的某一个实例拿到锁执行任务。再者要避免重复执行，可选方案有对同一个任务对应的数据库记录加行锁，或者结合分布式锁。
+
+- 可选框架：
+  - ShedLock：对公用数据库的记录和加锁。
+    - 配合的注解：开启定时任务锁@EnableSchedulerLock，配置bean LockProvider，定时任务具体方法上的注解`@SchedulerLock(name="simpleTask",lockAtLeastFor = 1*1000)`
+  - Quartz：也是结合数据库实现。
+    - 基本流程：由SchedulerFactory创建Schedule调度器，由这个调度器去调取即将执行的trigger，找到对应的JobDetail信息，进而找的具体的job类去执行。
+    - Quartz中主要有两种线程：执行线程与调度线程。调度线程个负责调度任务，加入有即将出发的trigger，则从线程池取出一个线程作为执行线程去执行trigger所对应的job。
+  - Elastic Job：与zookeeper搭配使用
+
+
+
+#### 132.Mybatisplus
+
+- Mybatisplus是一款mybatis增强工具。
+- 新增的特性：
+  - CRUD：通用mapper，单表的CURD，条件构造器
+  - 支持lambda
+  - 分布式唯一id生成器Sequence：原理--
+  - ActiveRecord模式：实体类继承model。
+  - 内置插件：代码生成插件、分页插件、性能分析、全局拦截（自定义拦截规则，预防误操作）
 
 
 
 
 
+#### zookeeper选举机制
 
 
 
@@ -1166,5 +1258,7 @@ String是不可变的（final），每次拼接其实是新开辟了内存空间
 
 
 
+拉链法解决哈希冲突？（待看）
 
+延时双删？
 
