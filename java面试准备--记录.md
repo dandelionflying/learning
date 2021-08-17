@@ -326,6 +326,11 @@ AOP是面向切面变成，我们一般将一些通用的、与业务无关但�
 
 会有，但我们常用的 `Controller`、`Service`、`Dao` 这些 Bean 是无状态的。无状态的 Bean 不能保存数据，因此是线程安全的。
 
+- 有状态是指：会涉及数据存储功能
+- 无状态是指：不会保存数据。
+
+dao层会操作数据库connection，spring事务管理器使用ThreadLocal为不同线程维护了一套独立的connection副本，线程之间不会互相影响。
+
 #### 40.@Component和@Bean的区别？
 
 前者作用域类，后者作用于方法。
@@ -692,6 +697,14 @@ corePoolSize(核心线程数)、maximumPoolSize（最大线程数）、队列。
 如果正在运行的线程数量小于corePoolSize，那么马上创建线程运行这个任务。
 
 大于或等于corePoolSize，则把任务放进等待队列。队列满了之后，创建非核心线程处理任务。如果已达到最大线程数了，线程池会抛出异常 `RejectExecutionException` 
+
+进入execute方法能看到，实际上如果创建线程的过程会使用一个全局的悲观锁
+
+```java
+final ReentrantLock mainLock = this.mainLock;
+```
+
+如果不是先放进队列中去，而是在核心线程满载的情况下每次来都去创建，用完又立刻销毁，那么可能会造成频繁的获取锁与释放锁，频繁的线程创建销毁过程，这违背了线程池的初衷。
 
 #### 85.ThreadLocal一定安全吗？（需要进一步加强理解）
 
@@ -1315,7 +1328,25 @@ doCreateBean()做了些什么？
 
 
 
+#### 136.spring怎么实现事务管理的？
 
+编程式事务：在程序中自行控制事务的开始、提交或者回滚。
+
+声明式事务：使用注解**@Transaction**，其原理是，spring会为其生成一个代理对象，当走到需要事务管理的方法时，由代理对象把当前session的事务提交方式改为false，再去执行业务逻辑，无异常则结束后commit，有异常则rollback。
+
+#### 137.spring自动装配机制？
+
+bean的定义中可以使用 `wutowire`属性，配置自动装配方式。
+
+默认不自动装配
+
+byName：根据名称
+
+byType：根据类型。假如有多个同类型的bean需要使用`@qualifier`确定，或改用byName方式
+
+constrcutor：byType是setter注入，constructor是构造器注入。
+
+springboot中可以在启动类用注解生命的方式装配bean
 
 
 
