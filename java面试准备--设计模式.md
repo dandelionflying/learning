@@ -30,7 +30,9 @@ java的io流，比如BufferedReader 和BufferWriter，他们都通过装饰器�
 
 SPringMVC中就有HandlerAdapter，根据不同handler规则执行不同的Handler
 
+#### 享元模式
 
+jdk中 Long包装类，使用了对象池的概念，缓存了[-128,127]之间的数字，假如值在对象池中已经存在了，就直接取，不会重新创建。
 
 
 
