@@ -63,7 +63,7 @@ select * from sys.schema_redundant_indexes
 
 先从explain和profile `show profiles;` 入手，profiling可以用来准确定位一条sql的性能瓶颈
 
-永远用小结果集驱动大的结果集
+永远用**小结果集驱动大的结果集**
 
 在索引中完成排序
 
@@ -140,4 +140,24 @@ join优化原则：
 #### 17.union all 一般比union效率更高，因为没有去重的过程
 
 当能够确定两个结果集没有重复数据时，就可以用union alll
+
+#### 18.字符串类型字段不加单引号，索引失效
+
+#### 19.如果查询包含group by ，但用户想要避免排序结果的消耗，可以加上order by null 禁止排序
+
+`select age,count(*) from emp group by age order by null;`
+
+#### 20.filesort：不通过索引直接排序的情况，filesort效率很低
+
+减少额外排序，通过索引直接返回有序数据。
+
+where条件和order by 使用相同的索引
+
+orderby 的顺序和索引顺序相同
+
+order by 的字段要么都是升序要么都是降序，不然内部会有额外的操作，会出现filesort
+
+#### 21.or 可以用union替代
+
+https://www.cnblogs.com/gttttttt/p/13681128.html
 

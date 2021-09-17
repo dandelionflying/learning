@@ -1,5 +1,7 @@
 ### 一、框架中用到的设计模式
 
+https://blog.csdn.net/caoxiaohong1005/article/details/80039656
+
 #### 简单工厂：
 
 BeanFactory。又一个工厂类根据传入的参数动态决定创建哪一个bean。

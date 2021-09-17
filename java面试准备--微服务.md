@@ -9,7 +9,7 @@
 
 ### 面试
 
-#### zk和eureka有什么区别？
+#### 1.zk和eureka有什么区别？
 
 CAP：一致性、可用性、分区容错性
 
@@ -17,7 +17,7 @@ zk：符合CP，强一致性。主从机制。用来资源统一管理。当需�
 
 Eureka：符合AP，高可用性。各个节点都是平等的。只要有一台eureka还在就能保证服务注册可用（高可用性）。但可能查到的信息不是最新的，因为不保证强一致性。
 
-#### 分布式锁
+#### 2.分布式锁
 
 - 数据库：非阻塞，不可重入
 - redis：setnx。
@@ -28,7 +28,7 @@ Eureka：符合AP，高可用性。各个节点都是平等的。只要有一台
     - 超时则计算新的超时时间t2，使用getset返回t3，如果与t1不相等则说明有人改过，返回false。
 - zk：
 
-#### 分布式事务
+#### 3.分布式事务
 
 > https://blog.csdn.net/oldshaui/article/details/88743085?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-6.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-6.control
 
@@ -49,21 +49,33 @@ Eureka：符合AP，高可用性。各个节点都是平等的。只要有一台
   - 基于事务补偿机制的：TTC(Try,Commit,Cancel)，基于业务层面实现
     - 保存数据的最终一致性，灵活控制，但由于是业务代码层面，开发成本高。
   - 基于事务消息：MQ
+  - 本地消息表：基于本地数据库+mq，维护本地状态，通过mq调用服务，完成后响应一条消息回调，讲状态改成完成。配合定时任务扫表，重新发送调用服务，需要保证幂等性
 
-#### base理论
+#### 4.base理论
 
-basically available 基本可用
+basically available 基本可用：允许相应延长 服务降级等
 
-soft state 软状态
+soft state 软状态：指允许系统中的数据存在中间状态，并认为该中间状态不会影响系统整体可用性
 
 eventually consistent 最终一致性
 
 
 
-#### 分布式会话
+#### 5.分布式会话
 
 - 利用反向代理，将会话分配到其中一台服务器去处理
   - 单机故障问题
 - redis存储session
   - 可做集群，可搭建主从
 
+#### 6.Quorum机制
+
+
+
+#### 7. waro机制
+
+一种简单的副本控制协议。写操作时只有所有副本更新成功才算成功，只要有一个副本存活，读就成功
+
+#### 8.SOA
+
+面向服务的架构，服务之间相互依赖完成一系列功能。各服务通过ESB（企业服务总线）进行交互，解决异构系统之间的连通性。
